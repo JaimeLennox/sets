@@ -6,9 +6,12 @@ data Sets a = SingleSet Int | Set [Sets Int] | ProductSet [(Sets Int, Sets Int)]
        deriving (Eq, Ord)  
 
 instance Show (Sets a) where
-  show (Set s) = show s
-  show (SingleSet s) = show s
-  show (ProductSet s) = show s
+  show (Set s)
+    = "{" ++ (concatMap ((++ ", ") . show) s) ++ "}"
+  show (SingleSet s)
+    = show s
+  show (ProductSet s)
+    = show s
 
 {-
 a :: Sets Int
