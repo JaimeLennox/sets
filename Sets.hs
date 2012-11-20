@@ -6,12 +6,15 @@ data Sets a = Elem Int | Set [Sets Int] | ProductSet [(Sets Int, Sets Int)]
        deriving (Eq, Ord)  
 
 instance Show (Sets a) where
-  show (Set s)
-    = "{" ++ (concatMap ((++ ", ") . show) s) ++ "}"
-  show (SingleSet s)
-    = show s
-  show (ProductSet s)
-    = show s
+  show s
+    = show' s
+    where
+      show'' s = "{" ++ (foldr1 f (map show s)) ++ "}"
+      f a b = a ++ ", " ++ b
+
+      show' (Set s)        = show'' s
+      show' (Elem s)       = show s
+      show' (ProductSet s) = show'' s
 
 {-
 a :: Sets Int
