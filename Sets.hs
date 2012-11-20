@@ -16,16 +16,8 @@ instance Show (Sets a) where
       show' (Elem s)       = show s
       show' (ProductSet s) = show'' s
 
-{-
-a :: Sets Int
-a = Set [Elem 1, Elem 3, Elem 5]
-
-b :: Sets Int
-b = Set [Elem 2, Elem 3]
-
-c :: Sets Int
-c = Set [Elem 1, Elem 5]
--}
+-- Example sets to play around with:
+-----------------------------------------------------------
 
 a :: Sets Int
 a = Set [Set [Elem 1], Set [Elem 2]]
@@ -48,8 +40,11 @@ x' = Set [Elem 1, Set [Elem 1]]
 ss :: Sets Int
 ss = Set [Elem 1, Elem 2, Set [Elem (-1), Elem (-2)], Elem 3]
 
+-- A useful set
 empty :: Sets Int
 empty = Set []
+
+-----------------------------------------------------------
 
 union :: Sets Int -> Sets Int -> Sets Int
 union (Set s) (Set s') = buildSet $ List.nub $ s ++ s'
@@ -74,7 +69,6 @@ isMember s (Set s') = elem s s'
 
 productSet :: Sets Int -> Sets Int -> Sets Int
 productSet (Set s) (Set s') = ProductSet [ (x,y) | x <- s, y <- s']
-
 
 powerSet :: Sets Int -> Sets Int
 -- Creates n! + 1 subsets
