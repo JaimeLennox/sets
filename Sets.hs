@@ -30,6 +30,9 @@ b = Set [Elem 1, Elem 2, Set [Elem 1]]
 c :: Sets Int
 c = Set [Elem 1, Set [Elem 1]]
 
+d :: Sets Int
+d = Set [Elem 1, Elem 2, Elem 3, Elem 4, Elem 5, Elem 6]
+
 x :: Sets Int
 x = Set [Elem 1]
 
@@ -67,14 +70,17 @@ productSet :: Sets Int -> Sets Int -> Sets Int
 productSet (Set s) (Set s') = ProductSet [ (x,y) | x <- s, y <- s']
 
 powerSet :: Sets Int -> Sets Int
+-- Creates n! + 1 subsets
 powerSet s = buildSet $ powerSet' s $ cardinality s 
-           where powerSet' :: Sets Int -> Int -> [Sets Int]
-                 powerSet' s@(Set s') n
-                   | s' == [] = []
-                   | cardinality s' < n = []
-                   | cardinality s' == n = s' ++ powerSet' s $ n - 1
-                   | otherwise = [   ]    
- --TODO; will create n! + 1 subset
+   where 
+     powerSet' :: Sets Int -> Int -> [Sets Int]
+     powerSet' s@(Set s') n
+       | s' == []           = []
+       | cardinality s < n  = []
+       | n < 1              = []
+       | cardinality s == n = s' ++ powerSet' s (n - 1)
+       | otherwise          = powerSet' s (n - 1) ++ (map buildSet $ concat
+         [List.permutations (s' List.\\ [s' !! y])| y <- [0..(n-1)]])
 
 buildSet :: [Sets Int] -> Sets Int 
 buildSet xs = Set (List.sort xs)
