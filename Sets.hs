@@ -73,7 +73,7 @@ productSet (Set s) (Set s') = ProductSet [ (x,y) | x <- s, y <- s']
 
 powerSet :: Sets Int -> Sets Int
 powerSet (Set s) = buildSet $ map buildSet $ powerSet' s
-  where powerSet' :: [a] -> [[a]] 
+  where powerSet' :: [Sets Int] -> [[Sets Int]] 
         powerSet' [] = [[]]
         powerSet' (x:xs) = pSet ++ map (x:) pSet
           where pSet = powerSet' xs
