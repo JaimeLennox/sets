@@ -12,6 +12,7 @@ instance Show (Sets a) where
       show'' s = "{" ++ (foldr1 f (map show s)) ++ "}"
       f a b = a ++ ", " ++ b
 
+      show' (Set [])       = "{}" 
       show' (Set s)        = show'' s
       show' (Elem s)       = show s
       show' (ProductSet s) = show'' s
@@ -71,17 +72,11 @@ productSet :: Sets Int -> Sets Int -> Sets Int
 productSet (Set s) (Set s') = ProductSet [ (x,y) | x <- s, y <- s']
 
 powerSet :: Sets Int -> Sets Int
--- Creates n! + 1 subsets
-powerSet s = buildSet $ powerSet' s $ cardinality s 
-   where 
-     powerSet' :: Sets Int -> Int -> [Sets Int]
-     powerSet' s@(Set s') n
-       | s' == []           = []
-       | cardinality s < n  = []
-       | n < 1              = []
-       | cardinality s == n = s' ++ powerSet' s (n - 1)
-       | otherwise          = powerSet' s (n - 1) ++ (map buildSet $ concat
-         [List.permutations (s' List.\\ [s' !! y])| y <- [0..(n-1)]])
+powerSet (Set s) = buildSet $ map buildSet $ powerSet' s
+  where powerSet' :: [a] -> [[a]] 
+        powerSet' [] = [[]]
+        powerSet' (x:xs) = pSet ++ map (x:) pSet
+          where pSet = powerSet' xs
 
 buildSet :: [Sets Int] -> Sets Int 
 buildSet xs = Set (List.sort xs)
