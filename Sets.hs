@@ -3,7 +3,7 @@ module Sets where
 import qualified Data.List as List
 
 data Sets a = Elem Int | Set [Sets Int] | ProductSet [(Sets Int, Sets Int)]
-       deriving (Eq, Ord)  
+  deriving (Eq, Ord)  
 
 instance Show (Sets a) where
   show s
@@ -12,10 +12,11 @@ instance Show (Sets a) where
       show'' s = "{" ++ (foldr1 f (map show s)) ++ "}"
       f a b = a ++ ", " ++ b
 
-      show' (Set [])       = "{}" 
-      show' (Set s)        = show'' s
-      show' (Elem s)       = show s
-      show' (ProductSet s) = show'' s
+      show' (Set [])               = "{}" 
+      show' (ProductSet [])        = "{}"
+      show' (Set s)                = show'' s
+      show' (Elem s)               = show s
+      show' (ProductSet s)         = show'' s
 
 -- Example sets to play around with:
 -----------------------------------------------------------
@@ -77,6 +78,15 @@ powerSet (Set s) = buildSet $ map buildSet $ powerSet' s
         powerSet' [] = [[]]
         powerSet' (x:xs) = pSet ++ map (x:) pSet
           where pSet = powerSet' xs
+powerSet (ProductSet s) = buildSet $ map buildSet' $ powerSet' s
+  where powerSet' :: [a] -> [[a]] 
+        powerSet' [] = [[]]
+        powerSet' (x:xs) = pSet ++ map (x:) pSet
+          where pSet = powerSet' xs
+        buildSet' xs = ProductSet (List.sort xs) 
+
+setID :: Sets Int -> Sets Int
+setID (Set s) = ProductSet [ (x,x) | x <- s]
 
 buildSet :: [Sets Int] -> Sets Int 
 buildSet xs = Set (List.sort xs)
