@@ -1,6 +1,7 @@
 module Sets where
 
 import qualified Data.List as List
+import Control.Exception
 
 data Sets a = Elem Int | Set [Sets Int] | ProductSet [(Sets Int, Sets Int)]
   deriving (Eq, Ord)  
@@ -32,6 +33,12 @@ c = Set [Elem 1, Set [Elem 1]]
 
 d :: Sets Int
 d = Set [Elem 1, Elem 2, Elem 3, Elem 4, Elem 5, Elem 6]
+
+r :: Sets Int
+r = ProductSet [(Elem 1,Elem 2),(Elem 2,Elem 3),(Elem 3,Elem 4),(Elem 4,Elem 1)]
+
+s :: Sets Int
+s = ProductSet [(Elem 1,Elem 2),(Elem 2,Elem 1),(Elem 3,Elem 4),(Elem 4,Elem 3)]
 
 x :: Sets Int
 x = Set [Elem 1]
@@ -65,6 +72,7 @@ cardinality (Set s) = length s
 
 isSubSet :: Sets Int -> Sets Int -> Bool
 isSubSet (Set s) (Set s') = s List.\\ s' == [] 
+isSubSet (ProductSet s) (ProductSet s') = s List.\\ s' == []
 
 isMember :: Sets Int -> Sets Int -> Bool
 isMember s (Set s') = elem s s'
@@ -87,6 +95,30 @@ powerSet (ProductSet s) = buildSet $ map buildSet' $ powerSet' s
 
 setID :: Sets Int -> Sets Int
 setID (Set s) = ProductSet [ (x,x) | x <- s]
+
+complement :: Sets Int -> Sets Int -> Sets Int
+complement s s' = assert (isSubSet s (ProductSet xs)) (ProductSet [x | x <- 
+  xs, (not (isMember (tupleToSet x) (productSetToSet s)))])
+  where
+    ProductSet xs = productSet s' s'
+
+tupleToSet :: (Sets Int, Sets Int) -> Sets Int
+tupleToSet (s, s') = Set [s, s']
+
+tuplesToSet :: [(Sets Int, Sets Int)] -> Sets Int
+tuplesToSet [] = Set []
+tuplesToSet (x:xs) = Set (tuplesToSet' (x:xs))
+  where
+    tuplesToSet' :: [(Sets Int, Sets Int)] -> [Sets Int]
+    tuplesToSet' [] = []
+    tuplesToSet' (x:xs) = tupleToSet x : tuplesToSet' xs 
+
+productSetToSet :: Sets Int -> Sets Int
+productSetToSet (ProductSet xs) = tuplesToSet xs
+
+setToTuple :: Sets Int -> (Sets Int, Sets Int)
+setToTuple (Set [s, s']) = (s, s')
+osMember s@(_,_) s' = isMember (tupleToSet s) s'
 
 buildSet :: [Sets Int] -> Sets Int 
 buildSet xs = Set (List.sort xs)
