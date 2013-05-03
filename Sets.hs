@@ -118,7 +118,6 @@ productSetToSet (ProductSet xs) = tuplesToSet xs
 
 setToTuple :: Sets Int -> (Sets Int, Sets Int)
 setToTuple (Set [s, s']) = (s, s')
-osMember s@(_,_) s' = isMember (tupleToSet s) s'
 
 buildSet :: [Sets Int] -> Sets Int 
 buildSet xs = Set (List.sort xs)
