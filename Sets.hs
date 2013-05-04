@@ -55,8 +55,16 @@ empty = Set []
 
 -- Natural numbers
 nat :: Sets Int
-nat = Set $ map Elem [1,2..]
+nat = Set $ map Elem [0,1..]
 
+-----------------------------------------------------------
+-- Argument Standards
+--
+-- In general, let R be a binary relation over the set A (with members a[1..n])
+--
+-- ARG1 : 1st arg = R, 2nd arg = A
+--
+-- ARG2 : 1st arg = R, 2nd arg = A, 3rd arg = a[i] 
 -----------------------------------------------------------
 
 union :: Sets Int -> Sets Int -> Sets Int
@@ -107,7 +115,7 @@ compose :: Sets Int -> Sets Int -> Sets Int
 compose (ProductSet s) (ProductSet s')
   = ProductSet [(x, y') | (x, y) <- s, (x', y') <- s', y == x']
 
--- First argument is relation, second argument is the set the relation is over
+-- ARG1
 isReflexive :: Sets Int -> Sets Int -> Bool
 isReflexive s s' = isSubSet (setID s') s  
 
@@ -117,18 +125,28 @@ isSymmetric = (==) (inverse s)
 isTransitive :: Sets Int -> Bool
 isTransitive s = isSubSet (compose s s) s
 
--- First argument is relation, second argument is the set the relation is over
+-- ARG1
 isEqual :: Sets Int -> Sets Int -> Bool
 isEqual s s' = isReflexive s s' && isSymmetric s && isTransitive s
 
 inverse :: Sets Int -> Sets Int
 inverse (ProductSet s) = ProductSet [ (x, x') | (x', x) <- s]
 
+-- ARG1
 complement :: Sets Int -> Sets Int -> Sets Int
 complement s s' = assert (isSubSet s setSquared) (ProductSet [x | x <- 
   xs, (not (isMember (tupleToSet x) (productSetToSet s)))])
   where
     setSquared@(ProductSet xs) = productSet s' s'
+
+-- ARG2
+equivalenceClass :: Sets Int -> Sets Int -> Sets Int -> [Sets Int]
+equivalenceClass pSet@(ProductSet s) set@(Set s') s''
+  = assert (isEqual pSet set) ( [ x | x <- s', elem (s'', x) s])
+
+-- ARG2
+quotientSet :: Sets Int -> Sets Int -> Sets Int -> Sets Int
+quotientSet s s' s'' = Set $ equivalenceClass s s' s''
 
 tupleToSet :: (Sets Int, Sets Int) -> Sets Int
 tupleToSet (s, s') = Set [s, s']
