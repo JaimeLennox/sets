@@ -60,11 +60,14 @@ nat = Set $ map Elem [0,1..]
 -----------------------------------------------------------
 -- Argument Standards
 --
--- In general, let R be a binary relation over the set A (with members a[1..n])
+-- In general, let R be a binary relation over the set X (with members x[1..n]),
+-- and f be a function mapping A -> B
 --
--- ARG1 : 1st arg = R, 2nd arg = A
+-- ARG1 : 1st arg = R, 2nd arg = X
 --
--- ARG2 : 1st arg = R, 2nd arg = A, 3rd arg = a[i] 
+-- ARG2 : 1st arg = R, 2nd arg = X, 3rd arg = x[i] 
+--
+-- ARG3 : 1st arg = f, 2nd arg = A, 3rd arg = B
 -----------------------------------------------------------
 
 union :: Sets Int -> Sets Int -> Sets Int
@@ -101,12 +104,11 @@ powerSet (Set s) = buildSet $ map buildSet $ powerSet' s
         powerSet' [] = [[]]
         powerSet' (x:xs) = pSet ++ map (x:) pSet
           where pSet = powerSet' xs
-powerSet (ProductSet s) = buildSet $ map buildSet' $ powerSet' s
+powerSet (ProductSet s) = buildSet $ map ProductSet $ powerSet' s
   where powerSet' :: [a] -> [[a]] 
         powerSet' [] = [[]]
         powerSet' (x:xs) = pSet ++ map (x:) pSet
           where pSet = powerSet' xs
-        buildSet' xs = ProductSet (List.sort xs) 
 
 setID :: Sets Int -> Sets Int
 setID (Set s) = ProductSet [ (x,x) | x <- s]
@@ -128,6 +130,18 @@ isTransitive s = isSubSet (compose s s) s
 -- ARG1
 isEqual :: Sets Int -> Sets Int -> Bool
 isEqual s s' = isReflexive s s' && isSymmetric s && isTransitive s
+
+-- ARG4
+isOnto :: Sets Int -> Sets Int -> Bool
+isOnto (ProductSet s) (Set s')
+  = length s' <=  length [y | (_, y) <- s, elem y s']
+
+isOneToOne :: Sets Int -> Sets Int -> Sets Int ->Bool
+isOneToOne (ProductSet s) = error "not implemented"
+
+-- ARG3
+isBijection :: Sets Int -> Sets Int -> Sets Int -> Bool
+isBijection s s' s'' = isOnto s s'' && isOneToOne s s' s''
 
 inverse :: Sets Int -> Sets Int
 inverse (ProductSet s) = ProductSet [ (x, x') | (x', x) <- s]
