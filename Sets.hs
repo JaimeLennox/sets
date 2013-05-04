@@ -53,16 +53,23 @@ ss = Set [Elem 1, Elem 2, Set [Elem (-1), Elem (-2)], Elem 3]
 empty :: Sets Int
 empty = Set []
 
+-- Natural numbers
+nat :: Sets Int
+nat = Set $ map Elem [1,2..]
+
 -----------------------------------------------------------
 
 union :: Sets Int -> Sets Int -> Sets Int
 union (Set s) (Set s') = buildSet $ List.nub $ s ++ s'
+union (ProductSet s) (ProductSet s') = ProductSet $ List.nub $ s ++ s'
 
 intersection :: Sets Int -> Sets Int -> Sets Int
 intersection (Set s) (Set s') = buildSet [x | x <- s, elem x s']
+intersection (ProductSet s) (ProductSet s') = ProductSet [x | x <- s, elem x s']
 
 diff :: Sets Int -> Sets Int -> Sets Int
 diff (Set s) (Set s') = buildSet [ x | x <- s, not (elem x s') ]
+diff (ProductSet s) (ProductSet s') = ProductSet [x | x <- s, not (elem x s')]
 
 symDiff :: Sets Int -> Sets Int -> Sets Int
 symDiff s s' = union (diff s s') (diff s' s)
@@ -71,8 +78,8 @@ cardinality :: Sets Int -> Int
 cardinality (Set s) = length s 
 
 isSubSet :: Sets Int -> Sets Int -> Bool
-isSubSet (Set s) (Set s') = s List.\\ s' == [] 
-isSubSet (ProductSet s) (ProductSet s') = s List.\\ s' == [] 
+isSubSet (Set s) (Set s') = s List.\\ s' == []
+isSubSet (ProductSet s) (ProductSet s') = s List.\\ s' == []
 
 isMember :: Sets Int -> Sets Int -> Bool
 isMember s (Set s') = elem s s'
@@ -95,6 +102,27 @@ powerSet (ProductSet s) = buildSet $ map buildSet' $ powerSet' s
 
 setID :: Sets Int -> Sets Int
 setID (Set s) = ProductSet [ (x,x) | x <- s]
+
+compose :: Sets Int -> Sets Int -> Sets Int
+compose (ProductSet s) (ProductSet s')
+  = ProductSet [(x, y') | (x, y) <- s, (x', y') <- s', y == x']
+
+-- First argument is relation, second argument is the set the relation is over
+isReflexive :: Sets Int -> Sets Int -> Bool
+isReflexive s s' = isSubSet (setID s') s  
+
+isSymmetric :: Sets Int -> Bool
+isSymmetric = (==) (inverse s)
+
+isTransitive :: Sets Int -> Bool
+isTransitive s = isSubSet (compose s s) s
+
+-- First argument is relation, second argument is the set the relation is over
+isEqual :: Sets Int -> Sets Int -> Bool
+isEqual s s' = isReflexive s s' && isSymmetric s && isTransitive s
+
+inverse :: Sets Int -> Sets Int
+inverse (ProductSet s) = ProductSet [ (x, x') | (x', x) <- s]
 
 complement :: Sets Int -> Sets Int -> Sets Int
 complement s s' = assert (isSubSet s setSquared) (ProductSet [x | x <- 
